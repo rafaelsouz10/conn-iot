@@ -1,85 +1,99 @@
+// === INCLUDES ===
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/adc.h"
-#include "pico/cyw43_arch.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
-#include "lwip/tcp.h"
-#include "lwip/netif.h"
+// === DEFINIÇÕES ===
+#define LIMITE_BAIXO 18.0f
+#define LIMITE_ALTO 32.0f
 
-// ====== Credenciais Wi-Fi ======
-#define WIFI_SSID "AP"
-#define WIFI_PASSWORD "congresso@"
+#define ADC_TEMP_X 26
 
-// ====== Prototipagem ======
-static err_t tcp_server_accept(void *arg, struct tcp_pcb *newpcb, err_t err);
-static err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err);
+#define LED_R_PIN 13
+#define LED_G_PIN 11
+#define LED_B_PIN 12
+#define BOTAO_PIN 5
 
-// ====== Função principal ======
+// === VARIÁVEIS GLOBAIS ===
+volatile float temperatura = 0.0;
+volatile float umidade = 0.0;
+volatile bool desativarAlarme = false;
+
+// === TASKS LIBS ===
+#include "lib/task_buzzer.h"
+
+// === TASKS ===
+void vSensorTask() {
+    while (1) {
+        adc_select_input(0);
+        uint16_t raw_temp = adc_read();
+        temperatura = 10.0 + ((raw_temp / 4095.0f) * 40.0f);
+
+        adc_select_input(1);
+        uint16_t raw_umid = adc_read();
+        umidade = 30.0 + ((raw_umid / 4095.0f) * 70.0f);
+
+        gpio_put(LED_R_PIN, temperatura > LIMITE_ALTO);
+        gpio_put(LED_B_PIN, temperatura < LIMITE_BAIXO);
+        gpio_put(LED_G_PIN, temperatura >= LIMITE_BAIXO && temperatura <= LIMITE_ALTO);
+
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+}
+
+void vBotaoTask() {
+    bool estadoAnterior = true;
+    while (1) {
+        bool estadoAtual = gpio_get(BOTAO_PIN);
+        if (!estadoAtual && estadoAnterior) {
+            desativarAlarme = true;
+            printf("Alarme desativado pelo botao.\n");
+        }
+        estadoAnterior = estadoAtual;
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+}
+
+// Trecho para modo BOOTSEL com botão B
+#include "pico/bootrom.h"
+#define botaoB 6
+void gpio_irq_handler(uint gpio, uint32_t events){
+    reset_usb_boot(0, 0);
+}
+
+// === FUNÇÃO PRINCIPAL ===
 int main() {
+
+    // Para ser utilizado o modo BOOTSEL com botão B
+    gpio_init(botaoB);
+    gpio_set_dir(botaoB, GPIO_IN);
+    gpio_pull_up(botaoB);
+    gpio_set_irq_enabled_with_callback(botaoB, GPIO_IRQ_EDGE_FALL, true, &gpio_irq_handler);
+    // Fim do trecho para modo BOOTSEL com botão B
+    
     stdio_init_all();
 
-    // Inicializa Wi-Fi
-    if (cyw43_arch_init()) {
-        printf("Erro ao inicializar Wi-Fi (CYW43)\n");
-        return -1;
-    }
+    adc_init();
+    adc_gpio_init(ADC_TEMP_X);
 
-    cyw43_arch_enable_sta_mode();
+    gpio_init(LED_R_PIN);
+    gpio_set_dir(LED_R_PIN, GPIO_OUT);
+    gpio_init(LED_G_PIN);
+    gpio_set_dir(LED_G_PIN, GPIO_OUT);
+    gpio_init(LED_B_PIN);
+    gpio_set_dir(LED_B_PIN, GPIO_OUT);
 
-    printf("Conectando ao Wi-Fi...\n");
-    while (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000)) {
-        printf("Falha ao conectar. Tentando novamente...\n");
-        sleep_ms(5000);
-    }
-    printf("Conectado!\n");
+    gpio_init(BOTAO_PIN);
+    gpio_set_dir(BOTAO_PIN, GPIO_IN);
+    gpio_pull_up(BOTAO_PIN);
 
-    // Exibe IP no terminal
-    if (netif_default) {
-        printf("IP local: %s\n", ipaddr_ntoa(&netif_default->ip_addr));
-    }
+    xTaskCreate(vSensorTask, "Sensor", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
+    xTaskCreate(vAlarmeTask, "Alarme", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
+    xTaskCreate(vBotaoTask, "Botao", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
 
-    // Configura servidor TCP
-    struct tcp_pcb *server = tcp_new();
-    if (!server) {
-        printf("Erro ao criar PCB do servidor\n");
-        return -1;
-    }
-
-    if (tcp_bind(server, IP_ADDR_ANY, 80) != ERR_OK) {
-        printf("Erro ao associar o servidor à porta 80\n");
-        return -1;
-    }
-
-    server = tcp_listen(server);
-    tcp_accept(server, tcp_server_accept);
-
-    printf("Servidor ouvindo na porta 80...\n");
-
-    // Loop principal
-    while (true) {
-        cyw43_arch_poll(); // necessário para manter Wi-Fi ativo
-        sleep_ms(100);
-    }
-
-    cyw43_arch_deinit();
+    vTaskStartScheduler();
+    while (true);
     return 0;
-}
-
-// ====== Aceitação de conexões ======
-static err_t tcp_server_accept(void *arg, struct tcp_pcb *newpcb, err_t err) {
-    tcp_recv(newpcb, tcp_server_recv);
-    return ERR_OK;
-}
-
-// ====== Tratamento inicial da requisição (placeholder) ======
-static err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err) {
-    if (!p) {
-        tcp_close(tpcb);
-        tcp_recv(tpcb, NULL);
-        return ERR_OK;
-    }
-
-    // Apenas descarta o conteúdo por enquanto
-    pbuf_free(p);
-    return ERR_OK;
 }

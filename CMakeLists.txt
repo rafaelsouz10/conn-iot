@@ -28,10 +28,15 @@ set(PICO_BOARD pico_w CACHE STRING "Board type")
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
+set(FREERTOS_KERNEL_PATH "E:/Documentos/EMBARCATECH/fase2/FreeRTOS-Kernel")
+include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
+
 project(conn-iot C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
+
+include_directories(${CMAKE_SOURCE_DIR}/lib)
 
 # Add executable. Default name is the project name, version 0.1
 
@@ -50,6 +55,8 @@ target_link_libraries(conn-iot
         hardware_gpio
         hardware_adc
         pico_cyw43_arch_lwip_threadsafe_background
+        FreeRTOS-Kernel 
+        FreeRTOS-Kernel-Heap4
 )
 
 # Add the standard include files to the build
