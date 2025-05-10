@@ -15,7 +15,6 @@ volatile float temperatura = 0.0;
 volatile bool desativarAlarme = false;
 volatile bool alarmeAtivo = false;
 volatile bool condicaoCritica = false;
-volatile bool estadoAnteriorBotao = true;
 
 // === TASKS LIBS ===
 #include "lib/task_buzzer.h"
@@ -45,7 +44,6 @@ int main() {
     xTaskCreate(vAlarmeTask, "Alarme", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
     xTaskCreate(vBotaoTask, "Botao", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
     xTaskCreate(vDisplayTask, "Display", configMINIMAL_STACK_SIZE * 2, NULL, tskIDLE_PRIORITY, NULL);
-
 
     vTaskStartScheduler();
 

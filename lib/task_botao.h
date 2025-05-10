@@ -1,6 +1,8 @@
 #ifndef TASK_BOTAO_H
 #define TASK_BOTAO_H
 
+volatile bool estadoAnteriorBotao = true;
+
 void vBotaoTask() {
     gpio_init(BOTAO_PIN);
     gpio_set_dir(BOTAO_PIN, GPIO_IN);

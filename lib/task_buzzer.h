@@ -39,6 +39,8 @@ void vAlarmeTask() {
     gpio_set_dir(BUZZER, GPIO_OUT);
     gpio_put(BUZZER, 0);
 
+    bool desativarAlarme = false;
+
     while (1) {
         condicaoCritica = (temperatura < LIMITE_BAIXO || temperatura > LIMITE_ALTO);
 

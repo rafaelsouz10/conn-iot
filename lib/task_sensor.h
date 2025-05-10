@@ -6,6 +6,9 @@
 #define LED_B_PIN 12
 #define ADC_TEMP_X 26
 
+#define LIMITE_BAIXO 15.0f
+#define LIMITE_ALTO 40.0f
+
 // === TASKS ===
 void vSensorTask() {
     gpio_init(LED_R_PIN);
