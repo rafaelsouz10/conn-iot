@@ -40,18 +40,23 @@ void vAlarmeTask() {
     gpio_put(BUZZER, 0);
 
     while (1) {
-        if (!desativarAlarme && (temperatura < LIMITE_BAIXO || temperatura > LIMITE_ALTO)) {
+        condicaoCritica = (temperatura < LIMITE_BAIXO || temperatura > LIMITE_ALTO);
+
+        if (!desativarAlarme && condicaoCritica) {
+            alarmeAtivo = true; 
             buzzer_start_alarm();
             vTaskDelay(pdMS_TO_TICKS(150));
             buzzer_stop_alarm();
             vTaskDelay(pdMS_TO_TICKS(100));
         } else {
             buzzer_stop_alarm();
+            alarmeAtivo = false;   
         }
 
-        if (temperatura >= LIMITE_BAIXO && temperatura <= LIMITE_ALTO) {
+        if (!condicaoCritica) {
             desativarAlarme = false;
         }
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 
