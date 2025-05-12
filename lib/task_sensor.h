@@ -9,7 +9,7 @@
 #define LIMITE_BAIXO 15.0f
 #define LIMITE_ALTO 40.0f
 
-// === TASKS ===
+// TASK DA SIMULAÇÃO DO SENSOR DE TEMPERTURA
 void vSensorTask() {
     gpio_init(LED_R_PIN);
     gpio_set_dir(LED_R_PIN, GPIO_OUT);
@@ -25,8 +25,6 @@ void vSensorTask() {
         adc_select_input(1);
         uint16_t vrx_temp = adc_read();
         temperatura = (vrx_temp / 4095.0) * 50.0;
-
-        printf("adc: %d   Temperatura: %.2f\n", vrx_temp, temperatura);
 
         gpio_put(LED_R_PIN, temperatura > LIMITE_ALTO);
         gpio_put(LED_B_PIN, temperatura < LIMITE_BAIXO);

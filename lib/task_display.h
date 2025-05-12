@@ -70,6 +70,10 @@ void vDisplayTask(){
         if (condicaoCritica && mostrar_alerta) {
             ssd1306_rect(&ssd, 0, 0, 128, 64, true, false); // borda da tela
         }
+
+        // Status Wi-Fi
+        ssd1306_draw_string(&ssd, (const char *)wifiIP, 5, 55);
+
         // Envia os dados para o display
         ssd1306_send_data(&ssd);
 

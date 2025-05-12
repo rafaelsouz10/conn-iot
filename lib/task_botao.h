@@ -1,6 +1,8 @@
 #ifndef TASK_BOTAO_H
 #define TASK_BOTAO_H
 
+#define BOTAO_PIN 5
+
 volatile bool estadoAnteriorBotao = true;
 
 void vBotaoTask() {
