@@ -32,7 +32,7 @@ int main() {
     xTaskCreate(vAlarmeTask, "Alarme", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
     xTaskCreate(vBotaoTask, "Botao", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
     xTaskCreate(vDisplayTask, "Display", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
-    xTaskCreate(vWebServerTask, "Web", configMINIMAL_STACK_SIZE * 2, NULL, tskIDLE_PRIORITY+1, NULL);
+    xTaskCreate(vWebServerTask, "Web", configMINIMAL_STACK_SIZE * 4, NULL, tskIDLE_PRIORITY+3, NULL);
 
     vTaskStartScheduler();
 

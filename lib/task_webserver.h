@@ -10,7 +10,7 @@
 volatile bool wifiConectado = false;
 volatile char wifiIP[20] = "Sem Conexao";
 
-// Prototipagem
+// Chamada das funções
 static err_t tcp_server_accept(void *arg, struct tcp_pcb *newpcb, err_t err); // Função de callback ao aceitar conexões TCP
 static err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err); // Função de callback para processar requisições HTTP
 void user_request(char **request); // Tratamento do request do usuário
@@ -94,14 +94,6 @@ void user_request(char **request) {
         desativarAlarme = true;
         printf("Alarme desativado via Web.\n");
     }
-}
-
-// Leitura da temperatura interna
-float temp_read(void) {
-    adc_select_input(4);
-    uint16_t raw = adc_read();
-    const float conv = 3.3f / (1 << 12);
-    return 27.0f - ((raw * conv - 0.706f) / 0.001721f);
 }
 
 // Inicializa o servidor
