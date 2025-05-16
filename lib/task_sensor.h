@@ -1,10 +1,14 @@
 #ifndef TASK_SENSOR_H
 #define TASK_SENSOR_H
 
+#include "hardware/adc.h"
+
 #define LED_R_PIN 13
 #define LED_G_PIN 11
 #define LED_B_PIN 12
 #define ADC_TEMP_X 26
+
+volatile float temperatura = 0.00;
 
 #define LIMITE_BAIXO 15.0f
 #define LIMITE_ALTO 40.0f

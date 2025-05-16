@@ -40,6 +40,8 @@ include_directories(${CMAKE_SOURCE_DIR}/lib)
 
 # Add executable. Default name is the project name, version 0.1
 
+add_subdirectory(lib/dht)
+
 add_executable(${PROJECT_NAME}  
     conn-iot.c
     lib/ssd1306/ssd1306.c # Biblioteca para o display OLED
@@ -61,6 +63,7 @@ target_link_libraries(${PROJECT_NAME}
         pico_cyw43_arch_lwip_threadsafe_background
         FreeRTOS-Kernel 
         FreeRTOS-Kernel-Heap4
+        dht
 )
 
 # Add the standard include files to the build

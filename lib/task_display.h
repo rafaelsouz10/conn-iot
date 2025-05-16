@@ -51,10 +51,20 @@ void vDisplayTask(){
         // Cabeçalho
         ssd1306_draw_string(&ssd, "ESTUFA", 35, 5);
 
-        // Temperatura
+        // Temperatura Simulada do potenciômetro
         char buffer_temp[32];
-        snprintf(buffer_temp, sizeof(buffer_temp), "Temp: %.2f C", temperatura);
-        ssd1306_draw_string(&ssd, buffer_temp, 5, 20);
+        snprintf(buffer_temp, sizeof(buffer_temp), "Potenc %.2fC", temperatura);
+        ssd1306_draw_string(&ssd, buffer_temp, 5, 15);
+
+        // Temperatura real DHT22
+        char buffer_tempDHT[32];
+        snprintf(buffer_tempDHT, sizeof(buffer_tempDHT), "DHT %.1fC", tempDHT);
+        ssd1306_draw_string(&ssd, buffer_tempDHT, 5, 25);
+
+        // Umidade DHT22
+        char buffer_umiDHT[32];
+        snprintf(buffer_umiDHT, sizeof(buffer_umiDHT), "%.1f%%", umiDHT);
+        ssd1306_draw_string(&ssd, buffer_umiDHT, 86, 25);
 
         // Estado Critico
         char buffer_critico[32];
