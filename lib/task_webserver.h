@@ -66,7 +66,7 @@ void handle_request(const char *request, struct tcp_pcb *tpcb) {
     if (strstr(request, "GET /dados") != NULL) {
         char json_body[256];
         snprintf(json_body, sizeof(json_body),
-            "{\"temperatura\":%.2f,\"tempDHT\":%.1f,\"umiDHT\":%.1f,\"estado\":\"%s\",\"alarme\":\"%s\"}",
+            "{\"t\":%.2f,\"td\":%.1f,\"ud\":%.1f,\"e\":\"%s\",\"a\":\"%s\"}",
             temperatura, tempDHT, umiDHT,
             condicaoCritica ? "CRITICO" : "OK",
             alarmeAtivo ? "ON" : "OFF");
@@ -76,35 +76,34 @@ void handle_request(const char *request, struct tcp_pcb *tpcb) {
         return;
     }
 
-    if (strstr(request, "GET /alarme_off") != NULL) {
+    if (strstr(request, "GET /a_off") != NULL) {
         desativarAlarme = true;
         printf("→ Alarme desativado via Web.\n");
     }
 
     char html_body[2048];
     snprintf(html_body, sizeof(html_body),
-        "<!DOCTYPE html>"
-        "<head><title>Estufa</title></head><body>"
+        "<!DOCTYPE html><head><title>Estufa</title>"
+        "<style>body{background-color:#f0f0f0;text-align:center;padding:20px;}"
+        "p{font-size:20px;color:#555;}"
+        "button{background:LightGray;font-size:16px;margin:10px;padding:10px 20px;}"
+        "</style></head><body>"
         "<h1>Monitoramento Estufa</h1>"
-        "<p>Temp: <span id='temp'></span></p>"
-        "<p>DHT: <span id='tempDHT'></span> <span id='umiDHT'></span></p>"
-        "<p>Estado: <span id='estado'></span></p>"
-        "<p>Alarme: <span id='alarme'></span></p>"
-        "<button onclick=\"fetch('/alarme_off');\"><b>Silenciar Alarme</b></button>"
-        "<script>"
-        "function attDados(){"
-        "fetch('/dados')"
-        ".then(response => response.json())"
-        ".then(data => {"
-        "document.getElementById('temp').textContent = data.temperatura + 'C';"
-        "document.getElementById('tempDHT').textContent = data.tempDHT + 'C';"
-        "document.getElementById('umiDHT').textContent = data.umiDHT + '%%';"
-        "document.getElementById('estado').textContent = data.estado;"
-        "document.getElementById('alarme').textContent = data.alarme;"
-        "})"
-        "}"
-        "setInterval(attDados, 2000);"
-        "window.onload = attDados;"
+        "<p>TempPot: <span id='t'></span></p>"
+        "<p>UmiDHT <span id='ud'></span></p>"
+        "<p>TempDHT <span id='td'></span></p>"
+        "<p>Estado: <span id='e'></span></p>"
+        "<p>Alarme: <span id='a'></span></p>"
+        "<button onclick=\"fetch('/a_off');\"><b>Silenciar Alarme</b></button>"
+        "<script>function attDados(){fetch('/dados')"
+        ".then(response=>response.json())"
+        ".then(data=>{"
+        "document.getElementById('t').textContent=data.t.toFixed(2)+' C';"
+        "document.getElementById('td').textContent=data.td.toFixed(1)+' C';"
+        "document.getElementById('ud').textContent=data.ud.toFixed(1)+'%%';"
+        "document.getElementById('e').textContent=data.e;"
+        "document.getElementById('a').textContent=data.a;"
+        "})}setInterval(attDados, 1000);window.onload=attDados;"
         "</script></body></html>"
     );
 

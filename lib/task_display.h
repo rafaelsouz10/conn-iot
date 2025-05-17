@@ -53,13 +53,13 @@ void vDisplayTask(){
 
         // Temperatura Simulada do potenciômetro
         char buffer_temp[32];
-        snprintf(buffer_temp, sizeof(buffer_temp), "Potenc %.2fC", temperatura);
-        ssd1306_draw_string(&ssd, buffer_temp, 5, 15);
+        snprintf(buffer_temp, sizeof(buffer_temp), "TempPot: %.2fC", temperatura);
+        ssd1306_draw_string(&ssd, buffer_temp, 0, 15);
 
         // Temperatura real DHT22
         char buffer_tempDHT[32];
-        snprintf(buffer_tempDHT, sizeof(buffer_tempDHT), "DHT %.1fC", tempDHT);
-        ssd1306_draw_string(&ssd, buffer_tempDHT, 5, 25);
+        snprintf(buffer_tempDHT, sizeof(buffer_tempDHT), "DHT: %.1fC", tempDHT);
+        ssd1306_draw_string(&ssd, buffer_tempDHT, 0, 25);
 
         // Umidade DHT22
         char buffer_umiDHT[32];
@@ -69,12 +69,12 @@ void vDisplayTask(){
         // Estado Critico
         char buffer_critico[32];
         snprintf(buffer_critico, sizeof(buffer_critico), "Estado: %s", condicaoCritica ? "CRITICO" : "OK");
-        ssd1306_draw_string(&ssd, buffer_critico, 5, 35);
+        ssd1306_draw_string(&ssd, buffer_critico, 0, 35);
 
         // Alarme
         char buffer_alarme[32];
         snprintf(buffer_alarme, sizeof(buffer_alarme), "Alarme: %s", alarmeAtivo  ? "ON" : "OFF");
-        ssd1306_draw_string(&ssd, buffer_alarme, 5, 45);
+        ssd1306_draw_string(&ssd, buffer_alarme, 0, 45);
 
         // Se estiver em estado crítico, pisca um retângulo no canto
         if (condicaoCritica && mostrar_alerta) {
@@ -82,7 +82,7 @@ void vDisplayTask(){
         }
 
         // Status Wi-Fi
-        ssd1306_draw_string(&ssd, (const char *)wifiIP, 5, 55);
+        ssd1306_draw_string(&ssd, (const char *)wifiIP, 0, 55);
 
         // Envia os dados para o display
         ssd1306_send_data(&ssd);
