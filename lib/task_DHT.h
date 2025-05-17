@@ -1,3 +1,5 @@
+//reaproveitado do repositório de Valentin Milea: https://github.com/vmilea/pico_dht
+
 #ifndef TASK_DHT_H
 #define TASK_DHT_H
 

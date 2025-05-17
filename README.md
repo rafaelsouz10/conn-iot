@@ -3,7 +3,7 @@
 ---
 
 ## Descrição do Projeto
-sistema multitarefa com FreeRTOS que simula o funcionamento de um semáforo acessível, utilizando a placa BitDogLab com RP2040. O sistema opera em dois modos — normal e noturno — e fornece feedback sonoro e visual para facilitar a acessibilidade de pessoas com deficiência visual.
+Desenvolver um sistema embarcado para monitoramento da temperatura em uma estufa utilizando a Raspberry Pi Pico W. O sistema deve exibir os dados localmente (display OLED), sinalizar condições críticas com LED e buzzer, e disponibilizar essas informações via servidor web acessível por dispositivos conectados à rede Wi-Fi.
 
 ---
 
@@ -90,6 +90,7 @@ Abaixo está o mapeamento de conexões entre os componentes e a Raspberry Pi Pic
 | Buzzer                 | GPIO 21                   |
 | Botão A                | GPIO 5                    |
 | Botão B                | GPIO 6                    |
+| DHT22                  | GPIO 8                    |
 
 
 #### 🛠️ Hardware Utilizado
@@ -99,6 +100,7 @@ Abaixo está o mapeamento de conexões entre os componentes e a Raspberry Pi Pic
 - **Buzzer**
 - **LED RGB**
 - **Wi-Fi (CYW43439)**
+- **DHT22**
 
 ---
 
@@ -107,9 +109,14 @@ Abaixo está o mapeamento de conexões entre os componentes e a Raspberry Pi Pic
 
 #### 📌 Funcionalidades
 
-**O sistema realiza a leitura de temperatura de forma simulada (potenciômetro) e compara os valores com limites estabelecidos.** Com base nisso: 
+**O sistema realiza a leitura de temperatura de forma simulada (potenciômetro) para que seja possível perceber a variação do parâmetro simulado e o acionamento do alarme e também de forma real (sensor DHT22).**
 
-- **LEDs** sinalizam o estado do ambiente (**temperatura ideal, frio demais ou quente demais**);
+Os valores lidos pelo **potenciômetro** são comparados com limites estabelecidos. Com base nisso:
+
+- **LEDs** sinalizam o estado do ambiente:
+   - **Led verde: temperatura ideal**
+   - **Led azul: frio demais**
+   - **Led vermelho: quente demais**
 
 - O **buzzer** é ativado em **situações críticas**;
 
@@ -117,10 +124,14 @@ Abaixo está o mapeamento de conexões entre os componentes e a Raspberry Pi Pic
 
 - Um **servidor web** permite o **monitoramento remoto** e o silenciamento do alarme via **interface HTML**.
 
-O **usuário** pode acessar a **página do Webserver** pela rede Wi-Fi para verificar a **temperatura, o estado do sistema e desativar o alarme**.
+O **usuário** pode acessar a **página do Webserver** pela rede Wi-Fi para verificar a **temperatura simulada, os parâmetros lidos pelo DHT22, o estado do sistema e desativar o alarme**.
 
 ---
 
-### 8. Vídeo Demonstrativo
+### 8. Vídeos Demonstrativo
 
-Click [AQUI](https://drive.google.com/file/d/1GTvek5WsZRavbE1PbcevZN9vSysE3bh8/view?usp=sharing) para acessar o link do Vídeo Ensaio
+**Click [AQUI](https://drive.google.com/file/d/1ExtOO20hji8XOA8F3JFLqy2kIRu8l-Y-/view?usp=sharing) para acessar o link do Vídeo Ensaio**
+
+Obs: Caso queira ver o vídeo referente a atividade 1 (parcial) do projeto:
+
+Click [AQUI](https://drive.google.com/file/d/1GTvek5WsZRavbE1PbcevZN9vSysE3bh8/view?usp=sharing) para acessar o link do Vídeo Ensaio Parcial
