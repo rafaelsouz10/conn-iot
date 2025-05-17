@@ -30,7 +30,7 @@ static inline void vTaskDHT(void *pvParameters) {
             tempDHT = temperature_c;
             umiDHT = humidity;
 
-            printf("[DHT OK] Temp: %.1fC  %.1f%% humidity\n", tempDHT, umiDHT);
+            // printf("[DHT OK] Temp: %.1fC  %.1f%% humidity\n", tempDHT, umiDHT);
         } else if (result == DHT_RESULT_TIMEOUT) {
             puts("[DHT FAIL] Sensor não respondeu. Cheque fiação.");
         } else if (result == DHT_RESULT_BAD_CHECKSUM) {

@@ -87,7 +87,7 @@ void vDisplayTask(){
         // Envia os dados para o display
         ssd1306_send_data(&ssd);
 
-        vTaskDelay(pdMS_TO_TICKS(50));
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
 

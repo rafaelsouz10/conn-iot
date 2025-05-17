@@ -26,11 +26,11 @@ int main() {
     bootsel_btn_callback(); // Para ser utilizado o modo BOOTSEL com botão B
     
     xTaskCreate(vSensorTask, "Sensor", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
-    xTaskCreate(vTaskDHT, "DHT22", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+2, NULL);
+    xTaskCreate(vTaskDHT, "DHT22", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
     xTaskCreate(vAlarmeTask, "Alarme", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
     xTaskCreate(vBotaoTask, "Botao", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
     xTaskCreate(vDisplayTask, "Display", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
-    xTaskCreate(vWebServerTask, "Web", configMINIMAL_STACK_SIZE * 4, NULL, tskIDLE_PRIORITY+3, NULL);
+    xTaskCreate(vWebServerTask, "WebServer", configMINIMAL_STACK_SIZE * 4, NULL, tskIDLE_PRIORITY + 2, NULL);
 
     vTaskStartScheduler();
 
