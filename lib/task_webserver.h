@@ -17,12 +17,12 @@
 volatile bool wifiConectado = false;
 volatile char wifiIP[20] = "Sem Conexao";
 
-// Prototipos
+// Prototipos das funções de callback TCP
 static err_t tcp_server_accept(void *arg, struct tcp_pcb *newpcb, err_t err);
 static err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err);
 
 // --- FUNÇÕES AUXILIARES ---
-
+// Função para conectar no Wi-Fi
 void wifi_connect() {
     while (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASS, CYW43_AUTH_WPA2_AES_PSK, 5000)) {
         printf("Tentando conectar ao Wi-Fi...\n");
@@ -30,13 +30,14 @@ void wifi_connect() {
         wifiConectado = false;
         vTaskDelay(pdMS_TO_TICKS(500));
     }
-
+    // Conexão bem-sucedida
     wifiConectado = true;
     ip4_addr_t ip = cyw43_state.netif[CYW43_ITF_STA].ip_addr;
     snprintf((char *)wifiIP, sizeof(wifiIP), "%s", ip4addr_ntoa(&ip));
     printf("Conectado! IP: %s\n", wifiIP);
 }
 
+// Configura o servidor TCP na porta 80
 void tcp_server_setup() {
     struct tcp_pcb *server = tcp_new();
     if (!server || tcp_bind(server, IP_ADDR_ANY, 80) != ERR_OK) {
@@ -48,6 +49,7 @@ void tcp_server_setup() {
     printf("Servidor ouvindo na porta 80\n");
 }
 
+// Envia uma resposta HTTP completa para o cliente
 void send_http_response(struct tcp_pcb *tpcb, const char *body, const char *content_type) {
     char response[2048];
     snprintf(response, sizeof(response),
@@ -62,7 +64,9 @@ void send_http_response(struct tcp_pcb *tpcb, const char *body, const char *cont
     tcp_output(tpcb);
 }
 
+// Trata as requisições HTTP recebidas
 void handle_request(const char *request, struct tcp_pcb *tpcb) {
+    // Endpoint JSON com dados do sistema
     if (strstr(request, "GET /dados") != NULL) {
         char json_body[256];
         snprintf(json_body, sizeof(json_body),
@@ -76,11 +80,13 @@ void handle_request(const char *request, struct tcp_pcb *tpcb) {
         return;
     }
 
+    // Endpoint para desativar o alarme via web
     if (strstr(request, "GET /a_off") != NULL) {
         desativarAlarme = true;
         printf("→ Alarme desativado via Web.\n");
     }
 
+    // Montagem da página HTML
     char html_body[2048];
     snprintf(html_body, sizeof(html_body),
         "<!DOCTYPE html><head><title>Estufa</title>"
@@ -112,7 +118,7 @@ void handle_request(const char *request, struct tcp_pcb *tpcb) {
 }
 
 // --- CALLBACKS TCP ---
-
+// Callback para tratar dados recebidos via TCP
 static err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err) {
     if (!p) {
         tcp_close(tpcb);
@@ -120,6 +126,7 @@ static err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
         return ERR_OK;
     }
 
+    // Copia e trata o request recebido
     char *request = (char *)malloc(p->len + 1);
     memcpy(request, p->payload, p->len);
     request[p->len] = '\0';
@@ -134,13 +141,13 @@ static err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
     return ERR_OK;
 }
 
+// Callback para aceitar conexões TCP
 static err_t tcp_server_accept(void *arg, struct tcp_pcb *newpcb, err_t err) {
     tcp_recv(newpcb, tcp_server_recv);
     return ERR_OK;
 }
 
-// --- TASK PRINCIPAL ---
-
+// --- TASK vWebServerTask ---
 void vWebServerTask() {
     if (cyw43_arch_init()) vTaskDelete(NULL);
     cyw43_arch_enable_sta_mode();
@@ -148,12 +155,14 @@ void vWebServerTask() {
     wifi_connect();
     tcp_server_setup();
 
+    // Loop de manutenção da conexão
     TickType_t lastCheck = xTaskGetTickCount();
     const TickType_t checkInterval = pdMS_TO_TICKS(5000);
 
     while (1) {
         cyw43_arch_poll();
 
+        // Verifica se perdeu conexão e tenta reconectar
         if (xTaskGetTickCount() - lastCheck >= checkInterval) {
             if (!netif_is_link_up(netif_default)) {
                 printf("Conexao perdida. Reconectando Wi-Fi...\n");
@@ -162,7 +171,6 @@ void vWebServerTask() {
             }
             lastCheck = xTaskGetTickCount();
         }
-
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
